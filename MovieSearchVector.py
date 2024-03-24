@@ -1,6 +1,6 @@
 # Author: Abhijeet Behera
 # Date: 2024-03-23
-# Description: This is a demo of vector search using Couchbase Vector search.
+# Description: This is a demo of vector search using Couchbase Vector search...
 
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
