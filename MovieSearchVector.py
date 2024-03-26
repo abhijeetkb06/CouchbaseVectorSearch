@@ -60,7 +60,7 @@ def insert_into_capella(movie_arr):
         st.error(f"Failed to load sample data into Couchbase: {e}")
 
 def perform_vector_search(query_vector):
-    """Perform a vector search in Couchbase with exception handling."""
+    """Perform a vector search in Couchbase Capella."""
     global bucket
     if not bucket:
         return
