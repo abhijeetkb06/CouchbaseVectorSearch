@@ -20,7 +20,7 @@ def vectorize_text(text):
 def connect_to_capella():
     """Connect to the Couchbase cluster with exception handling."""
     try:
-        cluster = Cluster('couchbases://cb.9xzsafdettnx3-b.cloud.couchbase.com',
+        cluster = Cluster('couchbases://cb.vo0u9a3drcc0wods.cloud.couchbase.com',
                           ClusterOptions(PasswordAuthenticator('admin', 'Password@P1')))
         cluster.wait_until_ready(timedelta(seconds=5))
         bucket = cluster.bucket('movie_bucket')
@@ -66,36 +66,24 @@ def perform_vector_search(bucket, query_vector):
         return None
 
 def search_movie(bucket):
-    """Search for movies based on user query and display results with exception handling."""
-    if not bucket:
-        return
+    """Search for movies based on user query and directly use search result fields."""
     query = st.text_input("Enter search terms related to the movie:")
     if query:
         query_vector = vectorize_text(query)
         results = perform_vector_search(bucket, query_vector)
         if results and results.rows():
             for row in results.rows():
-                doc = bucket.default_collection().get(row.id)
-                if doc:
-                    doc_content = doc.content_as[dict]
-                    title = doc_content.get('title', 'No Title')
-                    description = doc_content.get('description', 'No Description')
-                    poster_url = doc_content.get('poster_url', None)
-                    score = row.score
+                # Accessing fields directly from the search result
+                title = row.fields.get('title', 'No Title')
+                description = row.fields.get('description', 'No Description')
+                poster_url = row.fields.get('poster_url', None)
+                score = getattr(row, 'score', None)  # Assuming score can be accessed directly
 
-                    st.subheader(f"{title} (Score: {score:.4f})")
-                    if poster_url:
-                        st.image(poster_url, width=200)
-                    st.write(f"Description: {description}")
-                    st.markdown("---")
-        # if results:
-        #     for result in results:
-        #         title = result.fields['title']
-        #         description = result.fields['description']
-        #         st.subheader(title)
-        #         st.write(f"Description: {description}")
-
-
+                st.subheader(f"{title}" + (f" (Score: {score:.4f})" if score else ""))
+                if poster_url:
+                    st.image(poster_url, width=200)
+                st.write(f"Description: {description}")
+                st.markdown("---")
         else:
             st.write("No movies found matching your search criteria.")
 
