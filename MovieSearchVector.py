@@ -14,11 +14,11 @@ from couchbase.vector_search import VectorQuery, VectorSearch
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def vectorize_text(text):
-    """Vectorize text using the SentenceTransformer model."""
+
     return model.encode(text).tolist()
 
 def connect_to_capella():
-    """Connect to the Couchbase cluster with exception handling."""
+ 
     try:
         cluster = Cluster('couchbases://cb.vo0u9a3drcc0wods.cloud.couchbase.com',
                           ClusterOptions(PasswordAuthenticator('admin', 'Password@P1')))
@@ -30,13 +30,13 @@ def connect_to_capella():
         return None
 
 def load_sample_data():
-    """Load sample movie data from a JSON file."""
+    
     with open('data/MovieSample.json', 'r') as sample_data:
         movie_arr = json.load(sample_data)
     return movie_arr
 
 def insert_into_capella(movie_arr, bucket):
-    """Insert movies into Couchbase Capella with exception handling."""
+   
     if not bucket:
         return
     try:
@@ -49,7 +49,7 @@ def insert_into_capella(movie_arr, bucket):
         st.error(f"Failed to load sample data into Couchbase: {e}")
 
 def perform_vector_search(bucket, query_vector):
-    """Perform a vector search in Couchbase with exception handling."""
+    
     if not bucket:
         return
     search_index = 'vectorSearchIndex'
@@ -66,7 +66,7 @@ def perform_vector_search(bucket, query_vector):
         return None
 
 def search_movie(bucket):
-    """Search for movies based on user query and directly use search result fields."""
+    st.subheader("Search for Movies")
     query = st.text_input("Enter search terms related to the movie:")
     if query:
         query_vector = vectorize_text(query)
@@ -77,7 +77,7 @@ def search_movie(bucket):
                 title = row.fields.get('title', 'No Title')
                 description = row.fields.get('description', 'No Description')
                 poster_url = row.fields.get('poster_url', None)
-                score = getattr(row, 'score', None)  # Assuming score can be accessed directly
+                score = getattr(row, 'score', None)  
 
                 st.subheader(f"{title}" + (f" (Score: {score:.4f})" if score else ""))
                 if poster_url:
@@ -88,7 +88,24 @@ def search_movie(bucket):
             st.write("No movies found matching your search criteria.")
 
 def main():
-    """Main function to run the Streamlit app."""
+    # st.title("Movie Search Powered By Couchbase Vector Search")
+    st.markdown("""
+    <style>
+    .title-font {
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .powered-font {
+        color: red;
+        font-size: 20px;
+    }
+    </style>
+    <div>
+        <span class="title-font">Movie Search</span><br>
+        <span class="powered-font">Powered By Couchbase Vector Search</span>
+    </div>
+    """, unsafe_allow_html=True)
+
     bucket = connect_to_capella()
     if bucket:
         sample_data = load_sample_data()
